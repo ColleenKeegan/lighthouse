@@ -386,6 +386,7 @@ const defaultConfig = {
         {id: 'aria-roles', weight: 3, group: 'a11y-aria'},
         {id: 'aria-valid-attr-value', weight: 2, group: 'a11y-aria'},
         {id: 'aria-valid-attr', weight: 5, group: 'a11y-aria'},
+        {id: 'audio-caption', weight: 4, group: 'a11y-audio-video'},
         {id: 'button-name', weight: 10, group: 'a11y-names-labels'},
         {id: 'bypass', weight: 10, group: 'a11y-navigation'},
         {id: 'color-contrast', weight: 6, group: 'a11y-color-contrast'},
@@ -410,7 +411,6 @@ const defaultConfig = {
         {id: 'td-headers-attr', weight: 1, group: 'a11y-tables-lists'},
         {id: 'th-has-data-cells', weight: 1, group: 'a11y-tables-lists'},
         {id: 'valid-lang', weight: 1, group: 'a11y-language'},
-        {id: 'audio-caption', weight: 4, group: 'a11y-audio-video'},
         {id: 'video-caption', weight: 4, group: 'a11y-audio-video'},
         {id: 'video-description', weight: 3, group: 'a11y-audio-video'},
         // Manual audits
