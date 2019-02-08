@@ -3418,6 +3418,11 @@
           "group": "a11y-aria"
         },
         {
+          "id": "audio-caption",
+          "weight": 0,
+          "group": "a11y-audio-video"
+        },
+        {
           "id": "button-name",
           "weight": 0,
           "group": "a11y-names-labels"
@@ -3536,11 +3541,6 @@
           "id": "valid-lang",
           "weight": 0,
           "group": "a11y-language"
-        },
-        {
-          "id": "audio-caption",
-          "weight": 0,
-          "group": "a11y-audio-video"
         },
         {
           "id": "video-caption",
@@ -5075,6 +5075,12 @@
       ],
       "lighthouse-core/audits/network-server-latency.js | description": [
         "audits[network-server-latency].description"
+      ],
+      "lighthouse-core/audits/accessibility/accesskeys.js | title": [
+        "audits.accesskeys.title"
+      ],
+      "lighthouse-core/audits/accessibility/accesskeys.js | description": [
+        "audits.accesskeys.description"
       ],
       "lighthouse-core/audits/accessibility/aria-allowed-attr.js | title": [
         "audits[aria-allowed-attr].title"
