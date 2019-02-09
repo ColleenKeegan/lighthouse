@@ -92,7 +92,7 @@ class DetailsRenderer {
   }
 
   /**
-  * @param {{value: string}} text
+   * @param {{value: string}} text
    * @return {HTMLElement}
    */
   _renderTextURL(text) {
@@ -177,72 +177,11 @@ class DetailsRenderer {
    */
   _renderThumbnail(details) {
     const element = this._dom.createElement('img', 'lh-thumbnail');
-    element.src = details.value;
-    element.title = details.value;
+    const strValue = details.value;
+    element.src = strValue;
+    element.title = strValue;
     element.alt = '';
     return element;
-  }
-
-  /**
-   * @param {LH.Audit.Details.Table|LH.Audit.Details.Opportunity} details
-   * @return {Element}
-   */
-  _renderTable(details) {
-    if (!details.items.length) return this._dom.createElement('span');
-
-    const tableElem = this._dom.createElement('table', 'lh-table');
-    const theadElem = this._dom.createChildOf(tableElem, 'thead');
-    const theadTrElem = this._dom.createChildOf(theadElem, 'tr');
-
-    const headings = this._getCanonicalizedTableHeadings(details);
-
-    for (const heading of headings) {
-      const valueType = heading.valueType || 'text';
-      const classes = `lh-table-column--${valueType}`;
-      const labelEl = this._dom.createElement('div', 'lh-text');
-      labelEl.textContent = heading.label;
-      this._dom.createChildOf(theadTrElem, 'th', classes).appendChild(labelEl);
-    }
-
-    const tbodyElem = this._dom.createChildOf(tableElem, 'tbody');
-    for (const row of details.items) {
-      const rowElem = this._dom.createChildOf(tbodyElem, 'tr');
-      for (const heading of headings) {
-        const value = row[heading.key];
-        const valueElement = this._renderTableValue(value, heading);
-
-        if (valueElement) {
-          const classes = `lh-table-column--${heading.valueType}`;
-          this._dom.createChildOf(rowElem, 'td', classes).appendChild(valueElement);
-        } else {
-          this._dom.createChildOf(rowElem, 'td', 'lh-table-column--empty');
-        }
-      }
-    }
-    return tableElem;
-  }
-
-  /**
-   * Get the headings of a table-like details object, converted into the
-   * OpportunityColumnHeading type until we have all details use the same
-   * heading format.
-   * @param {LH.Audit.Details.Table|LH.Audit.Details.Opportunity} tableLike
-   * @return {Array<LH.Audit.Details.OpportunityColumnHeading>} header
-   */
-  _getCanonicalizedTableHeadings(tableLike) {
-    if (tableLike.type === 'opportunity') {
-      return tableLike.headings;
-    }
-
-    return tableLike.headings.map(heading => {
-      return {
-        key: heading.key,
-        label: heading.text,
-        valueType: heading.itemType,
-        displayUnit: heading.displayUnit,
-        granularity: heading.granularity,
-      };
-    });
   }
 
   /**
@@ -330,6 +269,68 @@ class DetailsRenderer {
   }
 
   /**
+   * Get the headings of a table-like details object, converted into the
+   * OpportunityColumnHeading type until we have all details use the same
+   * heading format.
+   * @param {LH.Audit.Details.Table|LH.Audit.Details.Opportunity} tableLike
+   * @return {Array<LH.Audit.Details.OpportunityColumnHeading>} header
+   */
+  _getCanonicalizedTableHeadings(tableLike) {
+    if (tableLike.type === 'opportunity') {
+      return tableLike.headings;
+    }
+
+    return tableLike.headings.map(heading => {
+      return {
+        key: heading.key,
+        label: heading.text,
+        valueType: heading.itemType,
+        displayUnit: heading.displayUnit,
+        granularity: heading.granularity,
+      };
+    });
+  }
+
+  /**
+   * @param {LH.Audit.Details.Table|LH.Audit.Details.Opportunity} details
+   * @return {Element}
+   */
+  _renderTable(details) {
+    if (!details.items.length) return this._dom.createElement('span');
+
+    const tableElem = this._dom.createElement('table', 'lh-table');
+    const theadElem = this._dom.createChildOf(tableElem, 'thead');
+    const theadTrElem = this._dom.createChildOf(theadElem, 'tr');
+
+    const headings = this._getCanonicalizedTableHeadings(details);
+
+    for (const heading of headings) {
+      const valueType = heading.valueType || 'text';
+      const classes = `lh-table-column--${valueType}`;
+      const labelEl = this._dom.createElement('div', 'lh-text');
+      labelEl.textContent = heading.label;
+      this._dom.createChildOf(theadTrElem, 'th', classes).appendChild(labelEl);
+    }
+
+    const tbodyElem = this._dom.createChildOf(tableElem, 'tbody');
+    for (const row of details.items) {
+      const rowElem = this._dom.createChildOf(tbodyElem, 'tr');
+      for (const heading of headings) {
+        const value = row[heading.key];
+        const valueElement = this._renderTableValue(value, heading);
+
+        if (valueElement) {
+          const classes = `lh-table-column--${heading.valueType}`;
+          this._dom.createChildOf(rowElem, 'td', classes).appendChild(valueElement);
+        } else {
+          this._dom.createChildOf(rowElem, 'td', 'lh-table-column--empty');
+        }
+      }
+    }
+    return tableElem;
+  }
+
+  /**
    * @param {LH.Audit.Details.NodeValue} item
    * @return {Element}
    * @protected
@@ -366,12 +367,12 @@ class DetailsRenderer {
   }
 
   /**
-   * @param {{value: string}} details
+   * @param {{value?: string|number}} details
    * @return {Element}
    */
   _renderCode(details) {
     const pre = this._dom.createElement('pre', 'lh-code');
-    pre.textContent = details.value;
+    pre.textContent = /** @type {string} */ (details.value);
     return pre;
   }
 }
