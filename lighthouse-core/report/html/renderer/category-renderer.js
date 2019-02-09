@@ -85,7 +85,8 @@ class CategoryRenderer {
         .appendChild(this.dom.convertMarkdownLinkSnippets(audit.result.description));
 
     const header = /** @type {HTMLDetailsElement} */ (this.dom.find('details', auditEl));
-    if (audit.result.details) {
+    if (audit.result.details && audit.result.details.type) {
+      // @ts-ignore TODO(bckenny): fix detailsRenderer.render input type
       const elem = this.detailsRenderer.render(audit.result.details);
       if (elem) {
         elem.classList.add('lh-details');

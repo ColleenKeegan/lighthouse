@@ -19,7 +19,6 @@
 /* globals self CriticalRequestChainRenderer Util URL */
 
 /** @typedef {import('./dom.js')} DOM */
-/** @typedef {LH.Audit.Details.TableItem[string] | LH.Audit.Details.OpportunityItem[string]} TableValue */
 
 const URL_PREFIXES = ['http://', 'https://', 'data:'];
 
@@ -76,7 +75,7 @@ class DetailsRenderer {
   _renderBytes(details) {
     // TODO: handle displayUnit once we have something other than 'kb'
     const value = Util.formatBytesToKB(details.value, details.granularity);
-    return this._renderText(value);
+    return this._renderText({value});
   }
 
   /**
@@ -89,15 +88,15 @@ class DetailsRenderer {
       value = Util.formatDuration(details.value);
     }
 
-    return this._renderText(value);
+    return this._renderText({value});
   }
 
   /**
-   * @param {string} text
+  * @param {{value: string}} text
    * @return {HTMLElement}
    */
   _renderTextURL(text) {
-    const url = text;
+    const url = text.value;
 
     let displayedPath;
     let displayedHost;
@@ -112,10 +111,14 @@ class DetailsRenderer {
     }
 
     const element = this._dom.createElement('div', 'lh-text__url');
-    element.appendChild(this._renderText(displayedPath));
+    element.appendChild(this._renderText({
+      value: displayedPath,
+    }));
 
     if (displayedHost) {
-      const hostElem = this._renderText(displayedHost);
+      const hostElem = this._renderText({
+        value: displayedHost,
+      });
       hostElem.classList.add('lh-text__url-host');
       element.appendChild(hostElem);
     }
@@ -133,7 +136,9 @@ class DetailsRenderer {
     const url = new URL(details.url);
     if (!allowedProtocols.includes(url.protocol)) {
       // Fall back to just the link text if protocol not allowed.
-      return this._renderText(details.text);
+      return this._renderText({
+        value: details.text,
+      });
     }
 
     const a = this._dom.createElement('a');
@@ -146,34 +151,34 @@ class DetailsRenderer {
   }
 
   /**
-   * @param {string} text
+   * @param {{value: string}} text
    * @return {Element}
    */
   _renderText(text) {
     const element = this._dom.createElement('div', 'lh-text');
-    element.textContent = text;
+    element.textContent = text.value;
     return element;
   }
 
   /**
-   * @param {string} text
+   * @param {{value: string}} text
    * @return {Element}
    */
   _renderNumeric(text) {
     const element = this._dom.createElement('div', 'lh-numeric');
-    element.textContent = text;
+    element.textContent = text.value;
     return element;
   }
 
   /**
    * Create small thumbnail with scaled down image asset.
-   * @param {string} url
+   * @param {{value: string}} details
    * @return {Element}
    */
-  _renderThumbnail(url) {
+  _renderThumbnail(details) {
     const element = this._dom.createElement('img', 'lh-thumbnail');
-    element.src = url;
-    element.title = url;
+    element.src = details.value;
+    element.title = details.value;
     element.alt = '';
     return element;
   }
@@ -244,7 +249,7 @@ class DetailsRenderer {
    * Render a details item value for embedding in a table. Renders the value
    * based on the heading's valueType, unless the value itself has a `type`
    * property to override it.
-   * @param {TableValue} value
+   * @param {LH.Audit.Details.TableItem[string] | LH.Audit.Details.OpportunityItem[string]} value
    * @param {LH.Audit.Details.OpportunityColumnHeading} heading
    * @return {Element|null}
    */
@@ -258,7 +263,7 @@ class DetailsRenderer {
       // The value's type overrides the heading's for this column.
       switch (value.type) {
         case 'code': {
-          return this._renderCode(value.value);
+          return this._renderCode(value);
         }
         case 'link': {
           return this._renderLink(value);
@@ -267,7 +272,7 @@ class DetailsRenderer {
           return this.renderNode(value);
         }
         case 'url': {
-          return this._renderTextURL(value.value);
+          return this._renderTextURL(value);
         }
         default: {
           throw new Error(`Unknown valueType: ${value.type}`);
@@ -283,7 +288,7 @@ class DetailsRenderer {
       }
       case 'code': {
         const strValue = String(value);
-        return this._renderCode(strValue);
+        return this._renderCode({value: strValue});
       }
       case 'ms': {
         const msValue = {
@@ -295,15 +300,15 @@ class DetailsRenderer {
       }
       case 'numeric': {
         const strValue = String(value);
-        return this._renderNumeric(strValue);
+        return this._renderNumeric({value: strValue});
       }
       case 'text': {
         const strValue = String(value);
-        return this._renderText(strValue);
+        return this._renderText({value: strValue});
       }
       case 'thumbnail': {
         const strValue = String(value);
-        return this._renderThumbnail(strValue);
+        return this._renderThumbnail({value: strValue});
       }
       case 'timespanMs': {
         const numValue = Number(value);
@@ -312,10 +317,10 @@ class DetailsRenderer {
       case 'url': {
         const strValue = String(value);
         if (URL_PREFIXES.some(prefix => strValue.startsWith(prefix))) {
-          return this._renderTextURL(strValue);
+          return this._renderTextURL({value: strValue});
         } else {
           // Fall back to <pre> rendering if not actually a URL.
-          return this._renderCode(strValue);
+          return this._renderCode({value: strValue});
         }
       }
       default: {
@@ -361,12 +366,12 @@ class DetailsRenderer {
   }
 
   /**
-   * @param {string} value
+   * @param {{value: string}} details
    * @return {Element}
    */
-  _renderCode(value) {
+  _renderCode(details) {
     const pre = this._dom.createElement('pre', 'lh-code');
-    pre.textContent = value;
+    pre.textContent = details.value;
     return pre;
   }
 }
