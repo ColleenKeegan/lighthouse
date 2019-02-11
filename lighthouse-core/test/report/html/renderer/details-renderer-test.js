@@ -190,7 +190,7 @@ describe('DetailsRenderer', () => {
     });
   });
 
-  describe('Table/opportunity rendering', () => {
+  describe('Table rendering', () => {
     it('renders text values', () => {
       const details = {
         type: 'table',
@@ -217,14 +217,13 @@ describe('DetailsRenderer', () => {
 
     it('renders an empty cell if item is missing a property', () => {
       const details = {
-        type: 'opportunity',
-        headings: [{key: 'content', valueType: 'text', label: 'Heading'}],
+        type: 'table',
+        headings: [{key: 'content', itemType: 'text', text: 'Heading'}],
         items: [
           {},
           {content: undefined},
           {content: 'a thing'},
         ],
-        overallSavingsMs: 100,
       };
 
       const el = renderer.render(details);
@@ -246,10 +245,9 @@ describe('DetailsRenderer', () => {
 
     it('renders code values from a string', () => {
       const details = {
-        type: 'opportunity',
-        headings: [{key: 'content', valueType: 'code', label: 'Heading'}],
+        type: 'table',
+        headings: [{key: 'content', itemType: 'code', text: 'Heading'}],
         items: [{content: 'code snippet'}],
-        overallSavingsMs: 150,
       };
 
       const el = renderer.render(details);
@@ -266,8 +264,7 @@ describe('DetailsRenderer', () => {
 
       const details = {
         type: 'table',
-        // itemType is overriden by code object
-        headings: [{key: 'content', itemType: 'url', text: 'Heading'}],
+        headings: [{key: 'content', itemType: 'code', text: 'Heading'}],
         items: [{content: code}],
       };
 
@@ -279,10 +276,9 @@ describe('DetailsRenderer', () => {
 
     it('renders thumbnail values', () => {
       const details = {
-        type: 'opportunity',
-        headings: [{key: 'content', valueType: 'thumbnail', label: 'Heading'}],
+        type: 'table',
+        headings: [{key: 'content', itemType: 'thumbnail', text: 'Heading'}],
         items: [{content: 'http://example.com/my-image.jpg'}],
-        overallSavingsMs: 150,
       };
 
       const el = renderer.render(details);
@@ -324,10 +320,9 @@ describe('DetailsRenderer', () => {
         url: linkUrl,
       };
       const details = {
-        type: 'opportunity',
-        headings: [{key: 'content', valueType: 'link', label: 'Heading'}],
+        type: 'table',
+        headings: [{key: 'content', itemType: 'link', text: 'Heading'}],
         items: [{content: link}],
-        overallSavingsMs: 150,
       };
 
       const el = renderer.render(details);
@@ -387,8 +382,8 @@ describe('DetailsRenderer', () => {
       };
 
       const details = {
-        type: 'opportunity',
-        headings: [{key: 'content', valueType: 'url', label: 'Heading'}],
+        type: 'table',
+        headings: [{key: 'content', itemType: 'url', text: 'Heading'}],
         items: [{content: url}],
         overallSavingsMs: 100,
       };
@@ -416,13 +411,12 @@ describe('DetailsRenderer', () => {
       assert.strictEqual(codeItemEl.innerHTML, '<pre class="lh-code">invalid-url://example.com/</pre>');
     });
 
-    it('throws on unknown heading valueType', () => {
+    it('throws on unknown heading itemType', () => {
       // Disallowed by type system, but test that we get an error message out just in case.
       const details = {
-        type: 'opportunity',
-        headings: [{key: 'content', valueType: 'notRealValueType', label: 'Heading'}],
+        type: 'table',
+        headings: [{key: 'content', itemType: 'notRealValueType', text: 'Heading'}],
         items: [{content: 'some string'}],
-        overallSavingsMs: 100,
       };
 
       assert.throws(() => renderer.render(details), /^Error: Unknown valueType: notRealValueType$/);
@@ -442,6 +436,34 @@ describe('DetailsRenderer', () => {
       };
 
       assert.throws(() => renderer.render(details), /^Error: Unknown valueType: imaginaryItem$/);
+    });
+
+    it('uses the item\'s type over the heading type', () => {
+      const details = {
+        type: 'table',
+        // itemType is overriden by code object
+        headings: [{key: 'content', itemType: 'url', text: 'Heading'}],
+        items: [
+          {content: {type: 'code', value: 'code object'}},
+          {content: 'https://example.com'},
+        ],
+      };
+
+      const el = renderer.render(details);
+      const itemElements = el.querySelectorAll('td.lh-table-column--url');
+
+      // First item's value uses its own type.
+      const codeEl = itemElements[0].firstChild;
+      assert.equal(codeEl.localName, 'pre');
+      assert.ok(codeEl.classList.contains('lh-code'));
+      assert.equal(codeEl.textContent, 'code object');
+
+      // Second item uses the heading's specified type for the column.
+      const urlEl = itemElements[1].firstChild;
+      assert.equal(urlEl.localName, 'div');
+      assert.ok(urlEl.classList.contains('lh-text__url'));
+      assert.equal(urlEl.title, 'https://example.com');
+      assert.equal(urlEl.textContent, 'https://example.com');
     });
   });
 });
